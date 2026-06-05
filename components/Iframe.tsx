@@ -59,8 +59,7 @@ export default function TruoraIFrame({ accountId, flowId }: { accountId: string;
           <iframe
             src={iframeSrc}
             allow="camera"
-            width="450"
-            height="700"
+            className="w-full flex-1"
             style={{ border: 'none' }}
           />
         </div>
