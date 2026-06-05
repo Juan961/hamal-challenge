@@ -36,5 +36,33 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  return NextResponse.json({ type: body?.type ?? null }, { status: 201 });
+  const type = body?.type;
+
+  if (!type) {
+    return NextResponse.json({ error: 'Bad Request: Missing type in body' }, { status: 400 });
+  }
+
+  let response: Record<'1' | '2', string | null> = {
+    "1": null,
+    "2": null,
+  }
+
+  if (type === "1") {
+    response = {
+      "1": "https://example.com/image.jpg",
+      "2": null,
+    }
+  } else if (type === "2") {
+    response = {
+      "1": null,
+      "2": "https://example.com/document.pdf",
+    }
+  } else {
+    response = {
+      "1": null,
+      "2": null,
+    }
+  }
+
+  return NextResponse.json(response, { status: 201 });
 }
