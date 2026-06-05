@@ -9,6 +9,7 @@ import { generateWebToken } from "../actions/truora";
 export default function TruoraIFrame({ accountId, flowId }: { accountId: string; flowId: string }) {
   const [iframeSrc, setIframeSrc] = useState('');
   const [tokenLoaded, setTokenLoaded] = useState(false);
+  const [events, setEvents] = useState<string[]>([]);
 
   useEffect(() => {
     generateWebToken(accountId, flowId).then(token => {
@@ -20,10 +21,13 @@ export default function TruoraIFrame({ accountId, flowId }: { accountId: string;
       // Validar origen del mensaje
       if (event.data === 'truora.process.succeeded') {
         console.log('Proceso exitoso');
+        setEvents(prev => [...prev, 'Process Succeeded + Result: ' + JSON.stringify(event.data.result)]);
       } else if (event.data === 'truora.process.failed') {
         console.log('Proceso fallido');
+        setEvents(prev => [...prev, 'Process Failed + Result: ' + JSON.stringify(event.data.result)]);
       } else if (event.data === 'truora.steps.completed') {
         console.log('Pasos completados, resultado pendiente');
+        setEvents(prev => [...prev, 'Steps Completed + Result: ' + JSON.stringify(event.data.result)]);
       }
     };
 
@@ -75,6 +79,14 @@ export default function TruoraIFrame({ accountId, flowId }: { accountId: string;
           </div>
         </div>
       }
+
+      <div>
+        {
+          events.map((event, index) => (
+            <p key={index}>{event}</p>
+          ))
+        }
+      </div>
     </section>
   );
 };
