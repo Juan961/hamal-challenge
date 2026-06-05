@@ -2,10 +2,13 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
 
+  let dataString = "";
+
   // try get body and log it
   try {
     const body = await request.json();
     console.log("Received webhook with body:", body);
+    dataString += JSON.stringify(body);
   } catch (error) {
     console.log(error)
   }
@@ -14,6 +17,7 @@ export async function POST(request: Request) {
   try {
     const queryParams = new URL(request.url).searchParams;
     console.log("Received webhook with query params:", Object.fromEntries(queryParams.entries()));
+    dataString += JSON.stringify(Object.fromEntries(queryParams.entries()));
   } catch (error) {
     console.log(error)
   }
@@ -22,6 +26,7 @@ export async function POST(request: Request) {
   try {
     const headers = request.headers;
     console.log("Received webhook with headers:", Object.fromEntries(headers.entries()));
+    dataString += JSON.stringify(Object.fromEntries(headers.entries()));
   } catch (error) {
     console.log(error)
   }
@@ -34,5 +39,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  return NextResponse.json({ "hello": "world" }, { status: 201 });
+  return NextResponse.json({ "hello": dataString }, { status: 201 });
 }
