@@ -1,36 +1,31 @@
-"use client"
+import Header from "@/components/Header";
 
-import { useState } from "react";
+import TruoraIFrame from "@/components/Iframe";
+import TruoraOutbound from "@/components/Outbound";
 
-import { launchOutbound } from "@/actions/outbound";
+const accountId = "70dfnoo9mn2lf052manim57cvg"
+
+const outboundId = "OTB723153edce4324ef323314c53d944c96"
+const outboundFlowId = "IPFaa962d8099dc437f3c1d95a21556df20"
+
+const iframeFlowId = "IPF35f7c6bf39a917053b56d84539a9a471"
 
 export default function Home() {
-  const [phoneNumber, setPhoneNumber] = useState("3246781687")
-
-  const handleTriggerOutbound = async () => {
-    const result = await launchOutbound(phoneNumber)
-    console.log("Outbound result:", result)
-  }
-
   return (
-    <main>
-      <h1 className="text-2xl font-bold">HAMAL Challenge</h1>
+    <>
+      <Header />
 
-      <section>
-        <h2 className="text-xl font-semibold">Outbound</h2>
-        <p>Trigger an outbound message</p>
-        <input type="text" disabled value="+57" />
-        <input type="text" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
+      <main className="grow w-full max-w-container-max mx-auto px-gutter py-2xl">
+        <div className="max-w-200 mx-auto flex flex-col gap-xl">
 
-        <button onClick={handleTriggerOutbound}>Trigger Outbound</button>
-      </section>
+          <TruoraOutbound accountId={accountId} flowId={outboundFlowId} outboundId={outboundId} />
 
-      <section>
-        <h2 className="text-xl font-semibold">Iframe</h2>
+          <TruoraIFrame accountId={accountId} flowId={iframeFlowId} />
+          
+        </div>
+      </main>
 
-        <iframe src="" frameBorder="0"></iframe>
-      </section>
 
-    </main>
+    </>
   );
 }
