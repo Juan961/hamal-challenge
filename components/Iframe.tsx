@@ -21,13 +21,16 @@ export default function TruoraIFrame({ accountId, flowId }: { accountId: string;
       // Validar origen del mensaje
       if (event.data === 'truora.process.succeeded') {
         console.log('Proceso exitoso');
-        setEvents(prev => [...prev, 'Process Succeeded + Result: ' + JSON.stringify(event.data.result)]);
+        setEvents(prev => [...prev, 'Process Succeeded + Result: ' + JSON.stringify(event)]);
       } else if (event.data === 'truora.process.failed') {
         console.log('Proceso fallido');
-        setEvents(prev => [...prev, 'Process Failed + Result: ' + JSON.stringify(event.data.result)]);
+        setEvents(prev => [...prev, 'Process Failed + Result: ' + JSON.stringify(event)]);
       } else if (event.data === 'truora.steps.completed') {
         console.log('Pasos completados, resultado pendiente');
-        setEvents(prev => [...prev, 'Steps Completed + Result: ' + JSON.stringify(event.data.result)]);
+        setEvents(prev => [...prev, 'Steps Completed + Result: ' + JSON.stringify(event)]);
+      } else {
+        console.log('Evento desconocido:', event.data);
+        setEvents(prev => [...prev, 'Unknown Event: ' + JSON.stringify(event)]);
       }
     };
 
@@ -85,6 +88,10 @@ export default function TruoraIFrame({ accountId, flowId }: { accountId: string;
           events.map((event, index) => (
             <p key={index}>{event}</p>
           ))
+        }
+
+        {
+          events.length === 0 && <p className="font-body-sm text-body-sm text-secondary">No se han recibido eventos aún.</p>
         }
       </div>
     </section>
