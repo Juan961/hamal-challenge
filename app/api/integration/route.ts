@@ -52,11 +52,11 @@ export async function POST(request: Request) {
     const errorResponse = {
       result: "error",
       message: "No jokes for you, there was an error processing the webhook data",
-      errors: {
+      errors: JSON.stringify({
         body: errorBody,
         queryParams: errorQueryParams,
         headers: errorHeaders
-      }
+      })
     }
     return NextResponse.json(errorResponse, { status: 400 });
   }
@@ -66,7 +66,7 @@ export async function POST(request: Request) {
   const response = {
     result: "success",
     message: jokesDevelopers[Math.floor(Math.random() * jokesDevelopers.length)],
-    errors: null
+    errors: ""
   }
 
   return NextResponse.json(response, { status: 201 });
