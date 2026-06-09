@@ -1,5 +1,13 @@
 import { NextResponse } from 'next/server';
 
+const jokesDevelopers = [
+  "Why do developers prefer dark mode? Because light attracts bugs!",
+  "What's a developer's favorite hangout place? Foo Bar!",
+  "Why did the developer go to the doctor? Because they had a syntax error!",
+  "Why do programmers always mix up Christmas and Halloween? Because Oct 31 == Dec 25!",
+  "Why do Java developers wear glasses? Because they don't see sharp!"
+];
+
 export async function POST(request: Request) {
 
   let body: Record<string, unknown> | null = null;
@@ -43,7 +51,7 @@ export async function POST(request: Request) {
   if (errorBody || errorQueryParams || errorHeaders) {
     const errorResponse = {
       result: "error",
-      message: "Webhook received but with some errors",
+      message: "No jokes for you, there was an error processing the webhook data",
       errors: {
         body: errorBody,
         queryParams: errorQueryParams,
@@ -57,7 +65,7 @@ export async function POST(request: Request) {
 
   const response = {
     result: "success",
-    message: "Integration approved",
+    message: jokesDevelopers[Math.floor(Math.random() * jokesDevelopers.length)],
     errors: null
   }
 
