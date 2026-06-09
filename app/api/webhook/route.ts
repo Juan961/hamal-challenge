@@ -36,7 +36,7 @@ export async function POST(request: Request) {
     decodedJwt = decodeJwt(raw);
     if (decodedJwt) {
       body = raw;
-      console.log("Received webhook with decoded JWT:", decodedJwt);
+      console.log("Received webhook with decoded JWT:", JSON.stringify(decodedJwt, null, 2));
     } else {
       body = JSON.parse(raw);
       console.log("Received webhook with body:", body);
