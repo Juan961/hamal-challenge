@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { ChevronRightIcon, CheckCircleIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
+import { ChevronRightIcon, CheckCircleIcon, ArrowPathIcon, XCircleIcon } from "@heroicons/react/24/outline";
 
 import { launchOutbound } from "@/actions/outbound";
 
@@ -11,7 +11,7 @@ export default function TruoraOutbound({ accountId, flowId, outboundId }: { acco
   const [name, setName] = useState("Juan")
   const [sent, setSent] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState(null)
+  const [result, setResult] = useState<unknown>(null)
 
   const handleTriggerOutbound = async () => {
     if (!phoneNumber || !name) {
@@ -25,9 +25,11 @@ export default function TruoraOutbound({ accountId, flowId, outboundId }: { acco
 
     setLoading(true)
     setSent(true)
-    const result = await launchOutbound(accountId, flowId, outboundId, phoneNumber, name)
+    setResult(null)
+    const data = await launchOutbound(accountId, flowId, outboundId, phoneNumber, name)
+    setResult(data)
     setLoading(false)
-    console.log("Outbound result:", result)
+    console.log("Outbound result:", data)
   }
 
   return (
@@ -68,13 +70,23 @@ export default function TruoraOutbound({ accountId, flowId, outboundId }: { acco
         <div className="bg-surface-container-low p-lg border-t border-surface-container-highest">
           <h3 className="font-label-sm text-label-sm text-secondary uppercase tracking-wider mb-md">Resultado del outbound</h3>
 
-          <div className="bg-secondary-container text-on-secondary-container rounded-lg p-md flex items-start gap-md border border-tertiary-fixed-dim">
-            <CheckCircleIcon className="h-5 w-5 text-green-600 mt-xs" />
-            <div>
-              <p className="font-label-md text-label-md text-on-surface">Message sent successfully</p>
-              <p className="font-label-md text-label-md text-on-surface">{ loading ? "Loading..." : sent ? "Message sent successfully" : null }</p>
-            </div>
-          </div>
+          {
+            loading ?
+              <div className="bg-secondary-container text-on-secondary-container rounded-lg p-md flex items-start gap-md border border-tertiary-fixed-dim">
+                <ArrowPathIcon className="h-5 w-5 text-secondary mt-xs animate-spin" />
+                <p className="font-label-md text-label-md text-on-surface">Sending message...</p>
+              </div>
+            : result !== null ?
+              <div className="bg-secondary-container text-on-secondary-container rounded-lg p-md flex items-start gap-md border border-tertiary-fixed-dim">
+                <CheckCircleIcon className="h-5 w-5 text-green-600 mt-xs" />
+                <p className="font-label-md text-label-md text-on-surface">Message sent successfully</p>
+              </div>
+            :
+              <div className="bg-error text-on-error rounded-lg p-md flex items-start gap-md border border-error-dim">
+                <XCircleIcon className="h-5 w-5 mt-xs" />
+                <p className="font-label-md text-label-md">Failed to send message. Please try again.</p>
+              </div>
+          }
         </div>
       }
 

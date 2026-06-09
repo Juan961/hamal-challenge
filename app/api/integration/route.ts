@@ -69,5 +69,5 @@ export async function POST(request: Request) {
     errors: ""
   }
 
-  return NextResponse.json(response, { status: 201 });
+  return NextResponse.json(response, { status: 200 });
 }

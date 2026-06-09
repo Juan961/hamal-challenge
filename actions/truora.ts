@@ -1,6 +1,5 @@
 "use server"
 
-// 1. Generar el Token de Integración Web
 export const generateWebToken = async (accountId: string, flowId: string) => {
   const params = new URLSearchParams({
     key_type: 'web',
