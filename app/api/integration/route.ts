@@ -4,27 +4,31 @@ export async function POST(request: Request) {
 
   let body: Record<string, unknown> | null = null;
 
-  // try get body and log it
+  let errorBody: string | null = null;
+  let errorQueryParams: string | null = null;
+  let errorHeaders: string | null = null;
+
   try {
     body = await request.json();
     console.log("Received webhook with body:", body);
   } catch (error) {
+    errorBody = "Error parsing JSON body";
     console.log(error)
   }
 
-  // try get query params and log them
   try {
     const queryParams = new URL(request.url).searchParams;
     console.log("Received webhook with query params:", Object.fromEntries(queryParams.entries()));
   } catch (error) {
+    errorQueryParams = "Error parsing query parameters";
     console.log(error)
   }
 
-  // try get headers and log them
   try {
     const headers = request.headers;
     console.log("Received webhook with headers:", Object.fromEntries(headers.entries()));
   } catch (error) {
+    errorHeaders = "Error parsing headers";
     console.log(error)
   }
 
@@ -36,32 +40,25 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const type = body?.type;
+  console.log("Integration data received and authenticated successfully. " + JSON.stringify(body));
 
-  if (!type) {
-    return NextResponse.json({ error: 'Bad Request: Missing type in body' }, { status: 400 });
+  if (errorBody || errorQueryParams || errorHeaders) {
+    const errorResponse = {
+      result: "error",
+      message: "Webhook received but with some errors",
+      errors: {
+        body: errorBody,
+        queryParams: errorQueryParams,
+        headers: errorHeaders
+      }
+    }
+    return NextResponse.json(errorResponse, { status: 400 });
   }
 
-  let response: Record<'1' | '2', string | null> = {
-    "1": null,
-    "2": null,
-  }
-
-  if (type === "1") {
-    response = {
-      "1": "https://example.com/image.jpg",
-      "2": null,
-    }
-  } else if (type === "2") {
-    response = {
-      "1": null,
-      "2": "https://example.com/document.pdf",
-    }
-  } else {
-    response = {
-      "1": null,
-      "2": null,
-    }
+  const response = {
+    result: "success",
+    message: "Webhook received and processed successfully",
+    errors: null
   }
 
   return NextResponse.json(response, { status: 201 });
