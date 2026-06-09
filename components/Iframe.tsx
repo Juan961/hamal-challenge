@@ -1,8 +1,8 @@
 "use client"
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-import { LockClosedIcon, DocumentCheckIcon } from "@heroicons/react/24/outline";
+import { LockClosedIcon, DocumentCheckIcon, ClockIcon } from "@heroicons/react/24/outline";
 
 import { generateWebToken } from "../actions/truora";
 
@@ -10,6 +10,23 @@ export default function TruoraIFrame({ accountId, flowId }: { accountId: string;
   const [iframeSrc, setIframeSrc] = useState('');
   const [tokenLoaded, setTokenLoaded] = useState(false);
   const [events, setEvents] = useState<string[]>([]);
+  const [isTrusted, setIsTrusted] = useState<boolean|null>(null);
+  const [processStarted, setProcessStarted] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  useEffect(() => {
+    // The iframe is cross-origin, so we can't listen for clicks inside it.
+    // When the user clicks into it, the parent window blurs and the iframe
+    // becomes the document's active element — use that to detect first interaction.
+    const handleBlur = () => {
+      if (document.activeElement === iframeRef.current) {
+        setProcessStarted(true);
+      }
+    };
+
+    window.addEventListener('blur', handleBlur);
+    return () => window.removeEventListener('blur', handleBlur);
+  }, []);
 
   useEffect(() => {
     generateWebToken(accountId, flowId).then(token => {
@@ -63,23 +80,36 @@ export default function TruoraIFrame({ accountId, flowId }: { accountId: string;
             </div>
           </div>
 
-          <iframe
-            src={iframeSrc}
-            allow="camera"
-            className="w-full flex-1"
-            style={{ border: 'none' }}
-          />
+          { 
+            isTrusted === null &&
+            <iframe
+              ref={iframeRef}
+              src={iframeSrc}
+              allow="camera"
+              className="w-full flex-1"
+              style={{ border: 'none' }}
+            />
+          }
         </div>
       </div>
 
-      { false &&
+      {
+        processStarted &&
+
         <div className="bg-surface-container-low p-lg border-t border-surface-container-highest">
           <h3 className="font-label-sm text-label-sm text-secondary uppercase tracking-wider mb-md">Resultado de la verificación</h3>
 
-          <div className="inline-flex items-center gap-sm bg-primary-fixed text-on-primary-fixed rounded-full px-md py-xs border border-primary-fixed-dim">
-            <DocumentCheckIcon className="h-5 w-5" />
-            <span className="font-label-sm text-label-sm">Steps Completed</span>
-          </div>
+          {
+            isTrusted !== null ? 
+            <div className="inline-flex items-center gap-sm bg-primary-fixed text-on-primary-fixed rounded-full px-md py-xs border border-primary-fixed-dim">
+              <DocumentCheckIcon className="h-5 w-5" />
+              <span className="font-label-sm text-label-sm">Steps Completed</span>
+            </div> : processStarted ?
+            <div className="inline-flex items-center gap-sm bg-primary-fixed text-on-primary-fixed rounded-full px-md py-xs border border-primary-fixed-dim">
+              <ClockIcon className="h-5 w-5" />
+              <span className="font-label-sm text-label-sm">Waiting for Result</span>
+            </div> : null
+          }
         </div>
       }
 
