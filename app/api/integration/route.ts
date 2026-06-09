@@ -18,7 +18,7 @@ export async function POST(request: Request) {
 
   try {
     body = await request.json();
-    console.log("Received webhook with body:", body);
+    console.log("Received integration with body:", body);
   } catch (error) {
     errorBody = "Error parsing JSON body";
     console.error(error)
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
 
   try {
     const queryParams = new URL(request.url).searchParams;
-    console.log("Received webhook with query params:", Object.fromEntries(queryParams.entries()));
+    console.log("Received integration with query params:", Object.fromEntries(queryParams.entries()));
   } catch (error) {
     errorQueryParams = "Error parsing query parameters";
     console.error(error)
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
 
   try {
     const headers = request.headers;
-    console.log("Received webhook with headers:", Object.fromEntries(headers.entries()));
+    console.log("Received integration with headers:", Object.fromEntries(headers.entries()));
   } catch (error) {
     errorHeaders = "Error parsing headers";
     console.error(error)
