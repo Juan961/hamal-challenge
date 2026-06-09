@@ -13,7 +13,7 @@ export async function POST(request: Request) {
     console.log("Received webhook with body:", body);
   } catch (error) {
     errorBody = "Error parsing JSON body";
-    console.log(error)
+    console.error(error)
   }
 
   try {
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     console.log("Received webhook with query params:", Object.fromEntries(queryParams.entries()));
   } catch (error) {
     errorQueryParams = "Error parsing query parameters";
-    console.log(error)
+    console.error(error)
   }
 
   try {
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     console.log("Received webhook with headers:", Object.fromEntries(headers.entries()));
   } catch (error) {
     errorHeaders = "Error parsing headers";
-    console.log(error)
+    console.error(error)
   }
 
   const api_key = request.headers.get("api_key");
@@ -39,8 +39,6 @@ export async function POST(request: Request) {
   if (api_key !== custom_auth_token) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-
-  console.log("Integration data received and authenticated successfully. " + JSON.stringify(body));
 
   if (errorBody || errorQueryParams || errorHeaders) {
     const errorResponse = {
@@ -55,9 +53,11 @@ export async function POST(request: Request) {
     return NextResponse.json(errorResponse, { status: 400 });
   }
 
+  console.log("Integration data received and authenticated successfully. " + JSON.stringify(body));
+
   const response = {
     result: "success",
-    message: "Webhook received and processed successfully",
+    message: "Integration approved",
     errors: null
   }
 
