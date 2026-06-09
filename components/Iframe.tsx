@@ -12,6 +12,7 @@ export default function TruoraIFrame({ accountId, flowId }: { accountId: string;
   const [events, setEvents] = useState<string[]>([]);
   const [isTrusted, setIsTrusted] = useState<boolean|null>(null);
   const [processStarted, setProcessStarted] = useState(false);
+  const [processInProgress, setProcessInProgress] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
@@ -21,6 +22,7 @@ export default function TruoraIFrame({ accountId, flowId }: { accountId: string;
     const handleBlur = () => {
       if (document.activeElement === iframeRef.current) {
         setProcessStarted(true);
+        setProcessInProgress(true);
       }
     };
 
@@ -35,19 +37,25 @@ export default function TruoraIFrame({ accountId, flowId }: { accountId: string;
     });
 
     const handleMessage = (event: MessageEvent) => {
-      // Validar origen del mensaje
+      // Log the REAL message: origin + payload (not the MessageEvent object,
+      // whose data/origin are non-enumerable and get dropped by JSON.stringify).
+      console.log('postMessage received', { origin: event.origin, data: event.data });
+
+      // Serialize the actual payload so we can see its true shape in the view.
+      const payload =
+        typeof event.data === 'string' ? event.data : JSON.stringify(event.data);
+
+      // Record EVERY message so nothing is hidden. Origin is included so you can
+      // tell Truora events apart from dev-tooling / extension noise.
+      setEvents(prev => [...prev, `[${event.origin}] ${payload}`]);
+
+      // React to the known Truora events.
       if (event.data === 'truora.process.succeeded') {
-        console.log('Proceso exitoso');
-        setEvents(prev => [...prev, 'Process Succeeded + Result: ' + JSON.stringify(event)]);
+        setIsTrusted(true);
       } else if (event.data === 'truora.process.failed') {
-        console.log('Proceso fallido');
-        setEvents(prev => [...prev, 'Process Failed + Result: ' + JSON.stringify(event)]);
+        setIsTrusted(false);
       } else if (event.data === 'truora.steps.completed') {
-        console.log('Pasos completados, resultado pendiente');
-        setEvents(prev => [...prev, 'Steps Completed + Result: ' + JSON.stringify(event)]);
-      } else {
-        console.log('Evento desconocido:', event.data);
-        setEvents(prev => [...prev, 'Unknown Event: ' + JSON.stringify(event)]);
+        setProcessInProgress(false);
       }
     };
 
