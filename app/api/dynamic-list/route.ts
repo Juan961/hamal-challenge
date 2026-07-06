@@ -47,7 +47,8 @@ export async function GET(request: Request) {
   }
 
   const response = JSON.stringify({
-    "listica": list
+    "listica": list,
+    "test": "si"
   })
 
   return NextResponse.json(response, { status: 200 });
