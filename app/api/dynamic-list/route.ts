@@ -46,5 +46,9 @@ export async function GET(request: Request) {
     });
   }
 
-  return NextResponse.json(list, { status: 200 });
+  const response = {
+    "listica": list
+  }
+
+  return NextResponse.json(response, { status: 200 });
 }
